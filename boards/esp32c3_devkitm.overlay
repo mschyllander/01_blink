@@ -1,0 +1,55 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/pinctrl/esp32c3-pinctrl.h>
+
+/ {
+    leds {
+        compatible = "gpio-leds";
+
+        led_red: led_red {
+            gpios = <&gpio0 10 GPIO_ACTIVE_HIGH>;
+            label = "External RED LED";
+        };
+
+        led_green: led_green {
+            gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+            label = "External GREEN LED";
+        };
+
+        led_blue: led_blue {
+            gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+            label = "External BLUE LED";
+        };
+    };
+
+    aliases {
+        led-red = &led_red;
+        led-green = &led_green;
+        led-blue = &led_blue;
+    };
+
+    zephyr,user {
+        io-channels = <&adc0 4>;
+    };
+};
+
+&adc0 {
+    status = "okay";
+};
+
+&spi2 {
+    status = "okay";
+
+    pinctrl-0 = <&spi2_custom>;
+    pinctrl-names = "default";
+};
+
+&pinctrl {
+    spi2_custom: spi2_custom {
+        group1 {
+            pinmux = <
+                SPIM2_MOSI_GPIO3
+                SPIM2_SCLK_GPIO7
+            >;
+        };
+    };
+};

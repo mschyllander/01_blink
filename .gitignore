@@ -1,0 +1,15 @@
+build/
+twister-out/
+.west/
+modules/
+bootloader/
+tools/
+zephyr/
+.vscode/
+.idea/
+*.elf
+*.hex
+*.bin
+*.map
+*.uf2
+*.log
