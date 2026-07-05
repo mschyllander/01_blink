@@ -67,9 +67,21 @@ static void make_tables(void)
     for (int i = 0; i < 256; i++) {
         sin8[i] = wave8((uint8_t)i);
 
-        uint8_t r = wave8((uint8_t)(i + 0));
-        uint8_t g = wave8((uint8_t)(i + 85));
-        uint8_t b = wave8((uint8_t)(i + 170));
+        uint8_t shine = wave8((uint8_t)(i * 2));
+        uint8_t base = 40 + (shine / 2);
+        uint8_t hi = wave8((uint8_t)(i * 7));
+
+        if (hi > 235) {
+            base = 255;
+        }
+
+        uint8_t r = base;
+        uint8_t g = base;
+        uint8_t b = base + 15;
+
+        if (b < base) {
+            b = 255;
+        }
 
         palette[i] = rgb565(r, g, b);
     }
@@ -179,9 +191,9 @@ static void plasma_circle(int cy, uint8_t frame)
             uint8_t dist = (uint8_t)(d2 >> 3);
 
             uint8_t v =
-                sin8[(uint8_t)(x * 3 + frame)] +
-                sin8[(uint8_t)(y * 3 + frame * 2)] +
-                sin8[(uint8_t)(dist * 3 - frame * 2)];
+    sin8[(uint8_t)(x + frame)] +
+    sin8[(uint8_t)(y + frame)] +
+    sin8[(uint8_t)(dist - frame)];
 
             fb_pixel(PLASMA_CX + x, cy + y, palette[v]);
         }
@@ -323,13 +335,24 @@ static void scroll_text_wave(int x, int base_y, const char *text, uint8_t frame)
     }
 }
 
+static void rgb_demo(uint8_t frame, int speed)
+{
+    uint8_t phase = frame + (speed * 20);
+
+    int r = sin8[(uint8_t)(phase + 0)] > 150;
+    int g = sin8[(uint8_t)(phase + 85)] > 150;
+    int b = sin8[(uint8_t)(phase + 170)] > 150;
+
+    rgb_set(r, g, b);
+}
+
 int main(void)
 {
     printk("Stable demo with pot speed\n");
 
     st7735_init();
     rgb_init();
-    rgb_set(1, 0, 1);
+    rgb_off();
 
     pot_init();
     make_tables();
@@ -337,7 +360,7 @@ int main(void)
 
     uint8_t frame = 0;
 
-    const char *scroll = "   MR MATZO STRIKES AGAIN   ZEPHYR ST7735 AMIGA STYLE DEMO   ";
+    const char *scroll = "   MR MATZO STRIKES AGAIN  - ZEPHYR ST7735 AMIGA STYLE DEMO 2026  ";
     int scroll_x = W;
 
     int plasma_y = 45 << 8;
@@ -345,6 +368,7 @@ int main(void)
 
     while (1) {
         int speed = pot_read_speed();
+        rgb_demo(frame, speed);
 
         fb_clear(ST7735_BLACK);
 
