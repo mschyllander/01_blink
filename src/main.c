@@ -32,7 +32,8 @@ typedef struct {
 static Star stars[STAR_COUNT];
 
 static uint8_t sin8[256];
-static uint16_t palette[256];
+static uint16_t plasma_palette[256];
+static uint16_t text_palette[256];
 
 static const struct device *adc_dev = DEVICE_DT_GET(DT_NODELABEL(adc0));
 static int pot_filtered = 0;
@@ -67,23 +68,30 @@ static void make_tables(void)
     for (int i = 0; i < 256; i++) {
         sin8[i] = wave8((uint8_t)i);
 
-        uint8_t shine = wave8((uint8_t)(i * 2));
-        uint8_t base = 40 + (shine / 2);
-        uint8_t hi = wave8((uint8_t)(i * 7));
+        /* Silver/chrome för plasma */
+        uint8_t shine = wave8((uint8_t)i);
+        uint8_t base = 55 + (shine / 3);
 
-        if (hi > 235) {
-            base = 255;
+        uint8_t hi = wave8((uint8_t)(i * 3));
+        if (hi > 245) {
+            base = 220;
         }
 
-        uint8_t r = base;
-        uint8_t g = base;
-        uint8_t b = base + 15;
-
-        if (b < base) {
-            b = 255;
+        uint8_t pr = base;
+        uint8_t pg = base;
+        uint8_t pb = base + 8;
+        if (pb < base) {
+            pb = 255;
         }
 
-        palette[i] = rgb565(r, g, b);
+        plasma_palette[i] = rgb565(pr, pg, pb);
+
+        /* Färgad Amiga/copper-palett för scrolltext */
+        uint8_t tr = wave8((uint8_t)(i + 0));
+        uint8_t tg = wave8((uint8_t)(i + 85));
+        uint8_t tb = wave8((uint8_t)(i + 170));
+
+        text_palette[i] = rgb565(tr, tg, tb);
     }
 }
 
@@ -188,14 +196,16 @@ static void plasma_circle(int cy, uint8_t frame)
                 continue;
             }
 
-            uint8_t dist = (uint8_t)(d2 >> 3);
+            uint8_t dist = (uint8_t)(d2 >> 4);
 
-            uint8_t v =
-    sin8[(uint8_t)(x + frame)] +
-    sin8[(uint8_t)(y + frame)] +
-    sin8[(uint8_t)(dist - frame)];
+            int v =
+                sin8[(uint8_t)((x / 2) + frame)] +
+                sin8[(uint8_t)((y / 2) + frame)] +
+                sin8[(uint8_t)((dist / 2) - frame)];
 
-            fb_pixel(PLASMA_CX + x, cy + y, palette[v]);
+            v = v / 3;   // viktigt: medelvärde istället för wrap
+
+            fb_pixel(PLASMA_CX + x, cy + y, plasma_palette[(uint8_t)v]);
         }
     }
 }
@@ -324,10 +334,11 @@ static void scroll_text_wave(int x, int base_y, const char *text, uint8_t frame)
     int char_index = 0;
 
     while (*text) {
-        int wave = ((int)sin8[(uint8_t)(frame * 3 + char_index * 9)] - 128) / 16;
-        uint16_t c = palette[(uint8_t)(frame * 4 + char_index * 16)];
+        int wave = ((int)sin8[(uint8_t)((frame >> 1) + char_index * 6)] - 128) / 12;
+        uint16_t c = text_palette[(uint8_t)((frame >> 1) + char_index * 8)];
 
-        fb_char(x, base_y + wave, *text, c);
+        fb_char(x + 1, base_y + wave + 1, *text, ST7735_BLACK);
+        fb_char(x,     base_y + wave,     *text, c);
 
         x += 6;
         text++;
@@ -399,7 +410,7 @@ int main(void)
             scroll_x = W;
         }
 
-        st7735_draw_framebuffer(fb);
+            st7735_draw_framebuffer(fb);
 
         frame += speed;
     }
