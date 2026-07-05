@@ -18,6 +18,12 @@ The code stays intentionally close to the hardware:
 | RGB LED helper | `src/rgb.c`, `src/rgb.h` |
 | ESP32-C3 wiring | `boards/esp32c3_devkitm.overlay` |
 
+## Demo Video
+
+[![01_blink running on the TFT display](assets/demo-thumbnail.jpg)](assets/demo.mp4)
+
+Click the image to open the demo video.
+
 ## Project Photos
 
 | Running display | Breadboard wiring | ESP32-C3 back |
