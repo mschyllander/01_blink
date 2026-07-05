@@ -20,9 +20,9 @@ The code stays intentionally close to the hardware:
 
 ## Project Photos
 
-| Running display | Breadboard wiring | TFT module back |
+| Running display | Breadboard wiring | ESP32-C3 back |
 | --- | --- | --- |
-| ![Plasma and starfield running on the TFT](assets/display-plasma-running.png) | ![Breadboard wiring for the ESP32-C3 TFT demo](assets/breadboard-wiring.png) | ![Back of the ESP](assets/tft-module-back.png) |
+| ![Plasma and starfield running on the TFT](assets/display-plasma-running.png) | ![Breadboard wiring for the ESP32-C3 TFT demo](assets/breadboard-wiring.png) | ![Back of the ESP32-C3 development board](assets/esp32-c3-back.png) |
 
 ## Hardware
 
