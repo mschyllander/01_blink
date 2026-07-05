@@ -60,7 +60,7 @@ west build -p always -b esp32c3_devkitm/esp32c3 C:\path\to\01_blink
 From a fresh checkout using this repo as a west manifest:
 
 ```powershell
-west init -m https://github.com/YOUR-GITHUB-USER/01_blink zephyr-01-blink
+west init -m https://github.com/mschyllander/01_blink zephyr-01-blink
 cd zephyr-01-blink
 west update
 west blobs fetch hal_espressif
